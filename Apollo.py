@@ -1,4 +1,4 @@
-
+#import all libs
 import pyttsx3
 import random
 import google.generativeai as genai
@@ -7,7 +7,7 @@ import google.generativeai as genai
 genai.configure(api_key='AIzaSyDYKGBoGdg-UBmTBLfV5Ql-UJRVlzChh1g')
 
 # Initialize Gemini model
-gemini_model = genai.GenerativeModel('gemini-pro')
+gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 
 
 # Function to perform a Google search with a query
@@ -24,21 +24,21 @@ def postprocess_response(response_text):
     response_text += ""
     return response_text
 
+#Prompt to train response:
 def generate_response(input_text):
     input_text = preprocess_input(input_text)
-    response = gemini_model.generate_content(input_text + "(:Your name is apollo and you are my personal assistant, reply to this message like so and make sure to act accourdingly at all times. ")
+    response = gemini_model.generate_content(input_text + "(+ your name is Apollo (just in case u needed to know)")
     response_text = postprocess_response(response.text)
     return response_text
 
-
-
-
+# Function to speak text (Replace with ELEVENLABS soon)
 def speak(text):
     engine = pyttsx3.init()
     engine.setProperty('rate', 150)
     engine.say(text)
     engine.runAndWait()
 
+# Function to interact with Apollo
 def chatbot():
     print("Hello Briyan! Apollo Here")
 
@@ -57,3 +57,11 @@ def chatbot():
 
 if __name__ == "__main__":
     chatbot()
+
+# TODO:
+# 1. Add voice from Elevenlabs
+# 2. Add image analysis to Gemini
+# 3. Add dump features to unused images after analysis
+# 4. Add context awareness to Apollo
+
+# End of Apollo.py
