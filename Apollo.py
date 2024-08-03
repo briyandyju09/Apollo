@@ -23,7 +23,7 @@ def postprocess_response(response_text):
 
 def generate_response(input_text):
     input_text = preprocess_input(input_text)
-    response = gemini_model.generate_content(input_text + " (+ your name is Apollo (just in case you needed to know))")
+    response = gemini_model.generate_content(input_text)
     response_text = postprocess_response(response.text)
     return response_text
 
