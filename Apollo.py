@@ -4,19 +4,22 @@ import google.generativeai as genai
 import webbrowser
 
 # Configure Gemini with your API key
-genai.configure(api_key='AIzaSyDYKGBoGdg-UBmTBLfV5Ql-UJRVlzChh1g')
+genai.configure(api_key='AIzaSyAWMgIa0ztE3upCG4xgFDt4y8PVEmoEHZo')
 
 # Initialize Gemini model
 gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 
+# Initialize Text-to-Speech engine
+engine = pyttsx3.init()
+engine.setProperty('rate', 150)
+
 def preprocess_input(input_text):
-    input_text = input_text.lower()
-    return input_text
+    # Convert to lowercase and trim whitespace
+    return input_text.lower().strip()
 
 def postprocess_response(response_text):
-    response_text = response_text.capitalize()
-    response_text += ""
-    return response_text
+    # Capitalize the first letter and ensure proper punctuation
+    return response_text.strip().capitalize() + "."
 
 def generate_response(input_text):
     input_text = preprocess_input(input_text)
@@ -25,8 +28,6 @@ def generate_response(input_text):
     return response_text
 
 def speak(text):
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 150)
     engine.say(text)
     engine.runAndWait()
 
@@ -38,6 +39,10 @@ def on_enter_pressed(event=None):
     user_input = input_entry.get()
     if user_input.lower() == 'exit':
         app.quit()
+    elif user_input.lower() == 'clear':
+        chat_log.delete('1.0', ctk.END)
+    elif user_input.lower() == 'help':
+        chat_log.insert(ctk.END, "Apollo: Type your message and press Enter or click Send. Type 'exit' to quit, 'clear' to clear the chat log, or 'help' for this message.\n")
     else:
         response = generate_response(user_input)
         chat_log.insert(ctk.END, "You: " + user_input + "\n")
@@ -58,8 +63,8 @@ app.geometry("600x800")
 frame_chat_log = ctk.CTkFrame(app, width=580, height=600)
 frame_chat_log.pack(pady=10)
 
-# Create a text widget for chat log
-chat_log = ctk.CTkTextbox(frame_chat_log, width=560, height=580)
+# Create a text widget for chat log with a scrollbar
+chat_log = ctk.CTkTextbox(frame_chat_log, width=560, height=580, wrap=ctk.WORD)
 chat_log.pack(pady=10)
 
 # Create a frame for input and buttons
