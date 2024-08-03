@@ -1,19 +1,13 @@
-#import all libs
+import customtkinter as ctk
 import pyttsx3
-import random
 import google.generativeai as genai
+import webbrowser
 
 # Configure Gemini with your API key
 genai.configure(api_key='AIzaSyDYKGBoGdg-UBmTBLfV5Ql-UJRVlzChh1g')
 
 # Initialize Gemini model
 gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-
-
-# Function to perform a Google search with a query
-def search_google(query):
-    url = f"https://www.google.com/search?q={query}"
-    webbrowser.open(url)
 
 def preprocess_input(input_text):
     input_text = input_text.lower()
@@ -24,44 +18,61 @@ def postprocess_response(response_text):
     response_text += ""
     return response_text
 
-#Prompt to train response:
 def generate_response(input_text):
     input_text = preprocess_input(input_text)
-    response = gemini_model.generate_content(input_text + "(+ your name is Apollo (just in case u needed to know)")
+    response = gemini_model.generate_content(input_text + " (+ your name is Apollo (just in case you needed to know))")
     response_text = postprocess_response(response.text)
     return response_text
 
-# Function to speak text (Replace with ELEVENLABS soon)
 def speak(text):
     engine = pyttsx3.init()
     engine.setProperty('rate', 150)
     engine.say(text)
     engine.runAndWait()
 
-# Function to interact with Apollo
-def chatbot():
-    print("Hello Briyan! Apollo Here")
+def search_google(query):
+    url = f"https://www.google.com/search?q={query}"
+    webbrowser.open(url)
 
-    while True:
-        print("You: (wait...)")
-        user_input = input("How can I help you today?:")
-        if user_input is None:
-            continue
-        elif user_input.lower() == 'exit':
-            print("Goodbye! Have a great day!")
-            break
-        else:
-            response = generate_response(user_input)
-            print("Apollo:", response)
-            speak(response)
+def on_enter_pressed(event=None):
+    user_input = input_entry.get()
+    if user_input.lower() == 'exit':
+        app.quit()
+    else:
+        response = generate_response(user_input)
+        chat_log.insert(ctk.END, "You: " + user_input + "\n")
+        chat_log.insert(ctk.END, "Apollo: " + response + "\n")
+        speak(response)
+        input_entry.delete(0, ctk.END)
 
-if __name__ == "__main__":
-    chatbot()
+# Initialize CustomTkinter
+ctk.set_appearance_mode("dark")  # Modes: system (default), light, dark
+ctk.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
-# TODO:
-# 1. Add voice from Elevenlabs
-# 2. Add image analysis to Gemini
-# 3. Add dump features to unused images after analysis
-# 4. Add context awareness to Apollo
+# Create the main window
+app = ctk.CTk()
+app.title("Apollo - Your Personal AI Assistant")
+app.geometry("600x800")
 
-# End of Apollo.py
+# Create a frame for chat log
+frame_chat_log = ctk.CTkFrame(app, width=580, height=600)
+frame_chat_log.pack(pady=10)
+
+# Create a text widget for chat log
+chat_log = ctk.CTkTextbox(frame_chat_log, width=560, height=580)
+chat_log.pack(pady=10)
+
+# Create a frame for input and buttons
+frame_input = ctk.CTkFrame(app, width=580, height=100)
+frame_input.pack(pady=10)
+
+# Create an entry widget for user input
+input_entry = ctk.CTkEntry(frame_input, width=400, height=50)
+input_entry.pack(side=ctk.LEFT, padx=10)
+input_entry.bind("<Return>", on_enter_pressed)
+
+# Create a button to send input
+send_button = ctk.CTkButton(frame_input, text="Send", command=on_enter_pressed)
+send_button.pack(side=ctk.LEFT, padx=10)
+
+app.mainloop()
